@@ -8,7 +8,6 @@ else:
     st.error("Please add your GEMINI_API_KEY to Streamlit Secrets!")
 
 model = genai.GenerativeModel('gemini-1.5-flash')
-
 st.title("🚀 Free AI Sales Script Generator")
 
 industry = st.text_input("What industry are you targeting?")
