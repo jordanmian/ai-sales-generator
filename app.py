@@ -1,24 +1,30 @@
 import streamlit as st
 import google.generativeai as genai
+from google.oauth2 import service_account
 
-# This pulls your key securely from Streamlit's "Secrets" setting
-if "GEMINI_API_KEY" in st.secrets:
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+# 1. Access the Service Account info from Secrets
+if "gcp_service_account" in st.secrets:
+    info = st.secrets["gcp_service_account"]
+    
+    # 2. Create credentials from the info
+    creds = service_account.Credentials.from_service_account_info(info)
+    
+    # 3. Configure the library with these credentials
+    genai.configure(credentials=creds)
+    model = genai.GenerativeModel('gemini-1.5-flash')
 else:
-    st.error("Please add your GEMINI_API_KEY to Streamlit Secrets!")
+    st.error("Service Account info not found in Secrets!")
 
-model = genai.GenerativeModel('gemini-2.0-flash')
-st.title("🚀 Free AI Sales Script Generator")
+st.title("🚀 AI Sales Script Generator")
 
-industry = st.text_input("What industry are you targeting?")
+industry = st.text_input("Target Industry")
 product = st.text_input("What are you selling?")
 
 if st.button("Generate Script"):
     if industry and product:
-        with st.spinner('Writing your script...'):
-            prompt = f"Write a professional, high-converting cold email for {product} targeting the {industry} industry."
+        with st.spinner('Writing...'):
+            prompt = f"Write a professional sales email for {product} in the {industry} industry."
             response = model.generate_content(prompt)
-            st.success("Here is your sales script:")
-            st.write(response.text)
+            st.success(response.text)
     else:
-        st.warning("Please enter both the industry and the product.")
+        st.warning("Please fill in both fields.")
